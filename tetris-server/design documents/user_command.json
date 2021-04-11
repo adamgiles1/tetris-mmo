@@ -1,0 +1,6 @@
+{
+  "msgType": "COMMAND",
+  "playerId": "1234",
+  "command": "START",
+  command is thing like 'enter matchingmaking', or 'start'
+}

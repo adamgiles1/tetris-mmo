@@ -1,0 +1,7 @@
+{
+  "msgType": "INPUT",
+  "playerId": "1234",
+  "action": "R",
+  action would be a single character representing the action
+  R would be move right, L move left, E flip right, etc
+}

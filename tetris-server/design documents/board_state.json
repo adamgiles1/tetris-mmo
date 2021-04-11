@@ -1,0 +1,35 @@
+{
+  "msgType": "BOARD",
+  "boards": [
+    {
+      "playerId": 1,
+      "tiles": [
+        ["B", "B", "B", "B"],
+        ["J", "B", "B", "B"],
+        ["J", "I", "I", "I"],
+        two dimensional array containing chars as enums for the piece color
+        B would be empty
+      ],
+      "piece": {
+        "color": "I",
+        "positions": [
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 1,
+            "y": 2
+          },
+          x and y coordinates for all of the spaces the piece controlled is currently at
+        ]
+      }
+    },
+    {
+
+    },
+    {
+
+    }
+  ]
+}
