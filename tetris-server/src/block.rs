@@ -8,7 +8,7 @@ pub struct Block {
 impl Block {
     pub fn new() -> Block {
         Block {
-            color: PieceType::O
+            color: PieceType::EMPTY
         }
     }
 
@@ -18,8 +18,8 @@ impl Block {
         }
     }
 
-    pub fn get_status(self) -> PieceType {
-        self.color
+    pub fn get_color(self) -> String {
+        self.color.get_color()
     }
 
     pub fn is_empty(&self) -> bool {

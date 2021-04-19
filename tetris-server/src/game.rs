@@ -6,12 +6,18 @@ use crate::game_board::GameBoard;
 use crate::connection::Connection;
 use std::time::Duration;
 use std::thread;
+use std::collections::HashMap;
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref inputs: Mutex<HashMap<String, Vec<Direction>>> = Mutex::new(HashMap::new());
+}
 
 pub struct Game {
     players: Vec<Player>,
     turns: i32,
     speed: i32,
-    start_at: u32,
 }
 
 impl Game {
@@ -20,16 +26,22 @@ impl Game {
             players: vec![],
             turns: 0,
             speed: 30,
-            start_at: 1,
+        }
+    }
+
+    pub unsafe fn add_input(username: String, direction: Direction) {
+        let mut locked_inputs = inputs.lock().unwrap();
+        if locked_inputs.contains_key(&username) {
+            let mut existingInputs = locked_inputs.remove_entry(&username).unwrap();
+            existingInputs.1.push(direction);
+            locked_inputs.insert(username, existingInputs.1);
+        } else {
+            locked_inputs.insert(username, vec![direction]);
         }
     }
 
     pub fn add_player(&mut self, player: Player) {
         self.players.push(player);
-        if self.players.len() >= self.start_at as usize {
-            self.start();
-            println!("game started");
-        }
     }
 
     pub fn start(&mut self) {
@@ -44,38 +56,41 @@ impl Game {
 
     fn tick(&mut self) {
         for mut player in &mut self.players {
-            let player_has_inputs = player.has_inputs();
-            if player_has_inputs {
-                let player_inputs = player.get_inputs().clone();
+            let mut all_player_inputs = inputs.lock().unwrap();
+            if all_player_inputs.contains_key(&player.username) {
+                let player_inputs = all_player_inputs.remove_entry(&player.username).unwrap().1;
+
                 for direction in player_inputs {
                     player.attempt_move(&direction);
                 }
             }
 
+
             if self.turns % self.speed == 0 {
                 let placed = player.attempt_fall_down();
-                if placed {
-                    player.set_piece(Piece::new(0, 0, PieceType::O));
+                if !placed {
+                    println!("piece placed");
+                    player.set_piece(Piece::new(5, 15, PieceType::random()));
                 }
             }
         }
 
+        let mut boardsOutput = AllBoardOutput {
+            msgType: String::from("BOARD"),
+            boards: vec![]
+        };
         for player in &self.players {
-            let mut boardsOutput = AllBoardOutput {
-                msgType: String::from("BOARD"),
-                boards: vec![]
-            };
-            for player in &self.players {
-                boardsOutput.boards.push(BoardOutput {
-                    playerId: String::from(&player.username),
-                    tiles: player.board.get_board_output(),
-                    piece: player.piece.get_piece_output(),
-                });
-            }
+            boardsOutput.boards.push(BoardOutput {
+                playerId: String::from(&player.username),
+                tiles: player.board.get_board_output(),
+                piece: player.piece.get_piece_output(),
+            });
+        }
+
+        for player in &self.players {
             player.send_message(serde_json::to_string(&boardsOutput).unwrap());
         }
 
-        println!("Tick Processed: {}", self.turns);
         self.turns += 1;
     }
 }

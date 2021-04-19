@@ -5,6 +5,7 @@ let rightPressed = false;
 let leftPressed = false;
 let upPressed = false;
 let downPressed = false;
+let spacePressed = false;
 
 function initializeBoard() {
     let gameWindow = document.getElementById("game-window");
@@ -13,7 +14,7 @@ function initializeBoard() {
     for (let h = 19; h >= 0; h--) {
         board += `<tr id="row-${h}">`;
 
-        for (let w = 9; w >= 0; w--) {
+        for (let w = 0; w <= 9; w++) {
             board += `<td id="tile-${h}-${w}"></td>`;
         }
 
@@ -25,7 +26,13 @@ function initializeBoard() {
 }
 
 function updateAllBoards(boardsMessage) {
-    for (let board in boardsMessage.boards) {
+
+    let boards = boardsMessage.boards;
+    //for (let board in boardsMessage.boards) {
+    for (let i = 0; i < boards.length; i++) {
+        console.log("board id");
+        let board = boards[i];
+        console.log(board);
         if (board.playerId === this.currentPlayerId) {
             updateBoard(board);
         }
@@ -33,9 +40,11 @@ function updateAllBoards(boardsMessage) {
 }
 
 function updateBoard(board) {
+    console.log("board");
+    console.log(board);
     // Update placed pieces
-    for (let h = 19; h <= 0; h--) {
-        for (let w = 0; w <= 0; w--) {
+    for (let h = 19; h >= 0; h--) {
+        for (let w = 9; w >= 0; w--) {
             setTile(h, w, board.tiles[w][h]);
         }
     }
@@ -79,7 +88,7 @@ function setTile(h, w, pieceType) {
             color = "grey";
     }
 
-    tile.style.backGroundColor = color;
+    tile.style.backgroundColor = color;
 }
 
 function connectToServer() {
@@ -133,6 +142,18 @@ function keyDownHandler(key) {
             downPressed = true;
             sendInput("D");
             break;
+        case 32:
+            spacePressed = true;
+            sendInput("S");
+            break;
+        case 90:
+            zPressed = true;
+            sendInput("Z")
+            break;
+        case 88:
+            xPressed = true;
+            sendInput("X");
+            break;
     }
 }
 
@@ -150,14 +171,29 @@ function keyUpHandler(key) {
         case 40:
             downPressed = false;
             break;
+        case 32:
+            spacePressed = false;
+            break;
+        case 90:
+            zPressed = false;
+            break;
+        case 88:
+            xPressed = false;
+            break;
     }
 }
 
 function handleIncomingMessage(incomingMessage) {
     console.log("message received: " + incomingMessage);
+    incomingMessage = JSON.parse(incomingMessage);
     switch(incomingMessage.msgType) {
         case "BOARD":
             updateAllBoards(incomingMessage);
+            break;
+        case "PLAYERID":
+            this.currentPlayerId = incomingMessage.playerId;
+            console.log("Player id is: " + this.currentPlayerId);
+            break;
         default:
             console.log("unknown message type");
     }
@@ -168,15 +204,15 @@ function sendInput(input) {
     
     let message = JSON.stringify({
         msgType: "INPUT",
-        playerId: currentPlayerId,
+        playerId: this.currentPlayerId,
         action: input
     });
-    console.log(input);
+    console.log(message);
     ws.send(message);
 }
 
 function openWebSocket() {
-    let port = 3012;
+    let port = 6868;
     let ip = document.getElementById("ipInput").value;
     ws = new WebSocket("ws://" + ip + ":" + port);
 

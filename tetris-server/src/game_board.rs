@@ -1,22 +1,25 @@
 use crate::block::Block;
-use crate::piece::Piece;
+use crate::piece::{Piece, PieceType};
 use crate::coordinate::Coordinate;
 use crate::player::BoardOutput;
 
 pub struct GameBoard {
-    board: [[Block; 10]; 40],
+    board: [[Block; 40]; 10],
 }
 
 impl GameBoard {
     pub fn new() -> GameBoard {
         GameBoard {
-            board: [[Block::new(); 10]; 40],
+            board: [[Block::new(); 40]; 10],
         }
     }
 
     pub fn get_block_color(&self, x: usize, y: usize) -> String {
-        //self.board[x][y].getStatus().to_string()
-        String::from("test")
+        // if self.board[x][y].is_empty() {
+        //     return String::from("B");
+        // }
+        // String::from("O")
+        self.board[x][y].get_color()
     }
 
     pub fn place_piece(&mut self, piece: &Piece) {
@@ -42,8 +45,15 @@ impl GameBoard {
     }
 
     pub fn get_board_output(&self) -> Vec<Vec<String>> {
-        //todo move board into vector of vectors
-        let board = vec![vec![]];
+        let mut board: Vec<Vec<String>> = vec![vec![String::from('#'); 40]; 10];
+
+        for (x, row) in self.board.iter().enumerate() {
+            for (y, block) in row.iter().enumerate() {
+                board[x][y] = self.get_block_color(x, y);
+            }
+        }
+
+        board
     }
 
     pub fn update() {

@@ -18,13 +18,23 @@ pub struct Player {
 impl Player {
 
     pub fn new(sender: Sender) -> Player {
-        Player {
-            username: "1".parse().unwrap(),
+        let id = sender.connection_id().to_string();
+
+        let player = Player {
+            username: id.clone(),
             board: GameBoard::new(),
             piece: Piece::new(5, 5, PieceType::L),
             sender,
             inputs: vec![],
-        }
+        };
+
+        let message = serde_json::to_string(&PlayerId {
+            msgType: String::from("PLAYERID"),
+            playerId: id,
+        }).unwrap();
+        player.sender.send(message);
+
+        player
     }
 
     pub fn get_board(&mut self) -> &mut GameBoard {
@@ -56,7 +66,13 @@ impl Player {
     }
 
     pub fn attempt_move(&mut self, direction: &Direction) {
-        self.piece.attempt_move(&self.board, direction);
+
+        match direction {
+            Direction::LEFT | Direction::RIGHT | Direction::FLIP_RIGHT | Direction::FLIP_LEFT =>
+                self.piece.attempt_move(&self.board, direction),
+            Direction::SPACE => self.piece.drop(&mut self.board),
+            Direction::NONE => (),
+        };
     }
 
     pub fn attempt_fall_down(&mut self) -> bool {
@@ -69,11 +85,12 @@ impl Player {
 
     pub fn input_from(&self, str: &str) -> Direction {
         return match str {
-            "U" => Direction::UP,
-            "D" => Direction::DOWN,
             "L" => Direction::LEFT,
             "R" => Direction::RIGHT,
-            _ => Direction::UP
+            "S" => Direction::SPACE,
+            "Z" => Direction::FLIP_LEFT,
+            "X" => Direction::FLIP_RIGHT,
+            _ => Direction::NONE,
         }
     }
 }
@@ -88,11 +105,11 @@ impl ws::Handler for Player {
         let value = message.as_text()?;
         let parsed: MessageType = serde_json::from_str(value).unwrap_or(MessageType { msgType: String::from("FAILURE"),});
         match &parsed.msgType[..] {
-            "INPUT" => {
+            "INPUT" => unsafe {
                 let parsed: PlayerInput = serde_json::from_str(value).unwrap();
                 let action = self.input_from(&parsed.action);
-                println!("action is: {}", parsed.action);
-                self.inputs.push(action);
+                println!("action is: {} id is: {}", parsed.action, self.username);
+                Game::add_input(self.username.clone(), action);
             }
             _ => (),
         }
@@ -129,4 +146,10 @@ pub struct BoardOutput {
 pub struct PieceOutput {
     pub color: String,
     pub positions: Vec<Coordinate>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PlayerId {
+    pub msgType: String,
+    pub playerId: String,
 }
