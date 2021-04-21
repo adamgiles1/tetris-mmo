@@ -70,7 +70,10 @@ impl Player {
         match direction {
             Direction::LEFT | Direction::RIGHT | Direction::FLIP_RIGHT | Direction::FLIP_LEFT =>
                 self.piece.attempt_move(&self.board, direction),
-            Direction::SPACE => self.piece.drop(&mut self.board),
+            Direction::SPACE => {
+                self.piece.drop(&mut self.board);
+                self.set_piece(Piece::new_random())
+            },
             Direction::NONE => (),
         };
     }
@@ -108,7 +111,6 @@ impl ws::Handler for Player {
             "INPUT" => unsafe {
                 let parsed: PlayerInput = serde_json::from_str(value).unwrap();
                 let action = self.input_from(&parsed.action);
-                println!("action is: {} id is: {}", parsed.action, self.username);
                 Game::add_input(self.username.clone(), action);
             }
             _ => (),

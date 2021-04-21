@@ -70,7 +70,7 @@ impl Game {
                 let placed = player.attempt_fall_down();
                 if !placed {
                     println!("piece placed");
-                    player.set_piece(Piece::new(5, 15, PieceType::random()));
+                    player.set_piece(Piece::new_random());
                 }
             }
         }

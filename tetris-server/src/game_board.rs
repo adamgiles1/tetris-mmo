@@ -2,6 +2,8 @@ use crate::block::Block;
 use crate::piece::{Piece, PieceType};
 use crate::coordinate::Coordinate;
 use crate::player::BoardOutput;
+use std::collections::HashSet;
+use std::ops::Range;
 
 pub struct GameBoard {
     board: [[Block; 40]; 10],
@@ -15,10 +17,6 @@ impl GameBoard {
     }
 
     pub fn get_block_color(&self, x: usize, y: usize) -> String {
-        // if self.board[x][y].is_empty() {
-        //     return String::from("B");
-        // }
-        // String::from("O")
         self.board[x][y].get_color()
     }
 
@@ -26,6 +24,40 @@ impl GameBoard {
         let coordinates = piece.get_coordinates();
         for coordinate in coordinates {
             self.board[coordinate.x][coordinate.y] = Block::new_with_color(piece.get_piece_type().clone());
+        }
+
+        self.check_lines_for_clear(0..22);
+    }
+
+    fn check_lines_for_clear(&mut self, rows_to_check: Range<usize>) {
+        let mut clear_row;
+        for y in rows_to_check {
+            clear_row = true;
+            while clear_row {
+                for x in 0..10 {
+                    if self.board[x][y].is_empty() {
+                        clear_row = false;
+                    }
+                }
+
+                if clear_row {
+                    self.clear_line(y);
+                }
+            }
+        }
+    }
+
+    fn clear_line(&mut self, line: usize) {
+        println!("clearing line");
+        // Shift all higher lines down by one
+        for y in line..39 {
+            for x in 0..10 {
+                self.board[x][y] = self.board[x][y+1];
+            }
+        }
+
+        for x in 0..10 {
+            self.board[x][39] = Block::new();
         }
     }
 

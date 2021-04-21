@@ -24,6 +24,15 @@ impl Piece {
         }
     }
 
+    pub fn new_random() -> Piece {
+        Piece {
+            x: 5,
+            y: 22,
+            piece_type: PieceType::random(),
+            offsets_index: 0,
+        }
+    }
+
     pub fn get_coordinates(&self) -> Vec<Coordinate> {
         let mut coordinates = vec![];
 
@@ -69,7 +78,10 @@ impl Piece {
     }
 
     pub fn drop(&mut self, board: &mut GameBoard) {
-        while self.attempt_fall_down(board) {}
+        let mut not_placed = true;
+        while not_placed {
+            not_placed = self.attempt_fall_down(board);
+        }
     }
 
     fn flip(&mut self, direction: &Direction, board: &GameBoard) {
@@ -132,12 +144,6 @@ impl PieceType {
     }
 
     pub fn get_offsets(&self, index: usize) -> [Offset; 4] {
-        // let mut offsets = [Coordinate; 4];
-        // offsets[0] = Offset{x: 0, y: 0};
-        // offsets[1] = Offset{x: 1, y: 1};
-        // offsets[2] = Offset{x: 1, y: 0};
-        // offsets[3] = Offset{x: 0, y: 1};
-        // return offsets;
 
         return T_OFFSET_LIST[index].clone()
     }
@@ -164,5 +170,6 @@ pub enum Direction {
     FLIP_RIGHT,
     FLIP_LEFT,
     SPACE,
+    DOWN,
     NONE,
 }
