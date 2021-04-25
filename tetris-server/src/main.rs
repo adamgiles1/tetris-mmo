@@ -20,7 +20,7 @@ use std::sync::Arc;
 
 fn main() {
     println!("Starting server...");
-    let player_count = 1;
+    let player_count = 2;
 
     let mut connections = vec![];
 

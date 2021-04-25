@@ -18,6 +18,7 @@ pub struct Game {
     players: Vec<Player>,
     turns: i32,
     speed: i32,
+    till_next_fall: i32,
 }
 
 impl Game {
@@ -26,6 +27,7 @@ impl Game {
             players: vec![],
             turns: 0,
             speed: 30,
+            till_next_fall: 30,
         }
     }
 
@@ -56,23 +58,28 @@ impl Game {
 
     fn tick(&mut self) {
         for mut player in &mut self.players {
-            let mut all_player_inputs = inputs.lock().unwrap();
-            if all_player_inputs.contains_key(&player.username) {
-                let player_inputs = all_player_inputs.remove_entry(&player.username).unwrap().1;
+            if !player.game_ended {
+                let mut all_player_inputs = inputs.lock().unwrap();
+                if all_player_inputs.contains_key(&player.username) {
+                    let player_inputs = all_player_inputs.remove_entry(&player.username).unwrap().1;
 
-                for direction in player_inputs {
-                    player.attempt_move(&direction);
+                    for direction in player_inputs {
+                        player.attempt_move(&direction);
+                    }
+                }
+
+                if self.till_next_fall <= 0 {
+                    let placed = player.attempt_fall_down();
+                    if !placed {
+                        println!("piece placed");
+                        player.set_piece(Piece::new_random());
+                    }
                 }
             }
+        }
 
-
-            if self.turns % self.speed == 0 {
-                let placed = player.attempt_fall_down();
-                if !placed {
-                    println!("piece placed");
-                    player.set_piece(Piece::new_random());
-                }
-            }
+        if self.till_next_fall <= 0 {
+            self.till_next_fall = self.speed;
         }
 
         let mut boardsOutput = AllBoardOutput {
@@ -84,6 +91,7 @@ impl Game {
                 playerId: String::from(&player.username),
                 tiles: player.board.get_board_output(),
                 piece: player.piece.get_piece_output(),
+                gameEnded: player.game_ended,
             });
         }
 
@@ -91,6 +99,12 @@ impl Game {
             player.send_message(serde_json::to_string(&boardsOutput).unwrap());
         }
 
+        // every 30 seconds increase the speed
+        if self.turns % (30*60) == 0 && self.speed > 2 {
+            self.speed -= 4
+        }
+
         self.turns += 1;
+        self.till_next_fall -= 1;
     }
 }

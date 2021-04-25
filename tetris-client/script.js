@@ -7,15 +7,15 @@ let upPressed = false;
 let downPressed = false;
 let spacePressed = false;
 
-function initializeBoard() {
+function initializeBoards() {
     let gameWindow = document.getElementById("game-window");
     let board = '<table id="game-board">';
     
     for (let h = 19; h >= 0; h--) {
-        board += `<tr id="row-${h}">`;
+        board += `<tr id="player-${this.currentPlayerId}-row-${h}">`;
 
         for (let w = 0; w <= 9; w++) {
-            board += `<td id="tile-${h}-${w}"></td>`;
+            board += `<td id="player-${this.currentPlayerId}-tile-${h}-${w}"></td>`;
         }
 
         board += '</tr>';
@@ -28,13 +28,14 @@ function initializeBoard() {
 function updateAllBoards(boardsMessage) {
 
     let boards = boardsMessage.boards;
-    //for (let board in boardsMessage.boards) {
     for (let i = 0; i < boards.length; i++) {
-        console.log("board id");
         let board = boards[i];
         console.log(board);
+        updateBoard(board);
         if (board.playerId === this.currentPlayerId) {
-            updateBoard(board);
+            if (board.gameEnded) {
+                alert("loser");
+            }
         }
     }
 }
@@ -45,18 +46,20 @@ function updateBoard(board) {
     // Update placed pieces
     for (let h = 19; h >= 0; h--) {
         for (let w = 9; w >= 0; w--) {
-            setTile(h, w, board.tiles[w][h]);
+            setTile(h, w, board.tiles[w][h], board.playerId);
         }
     }
 
     // Update player controlled piece
     board.piece.positions.forEach(position => {
-        setTile(position.y, position.x, board.piece.color);
+        setTile(position.y, position.x, board.piece.color, board.playerId);
     });
 }
 
-function setTile(h, w, pieceType) {
-    let tile = document.getElementById(`tile-${h}-${w}`);
+function setTile(h, w, pieceType, playerId) {
+    console.log("here it is");
+    console.log(`player-${playerId}-tile-${h}-${w}`);
+    let tile = document.getElementById(`player-${playerId}-tile-${h}-${w}`);
     let color;
 
     switch(pieceType) {
@@ -88,7 +91,9 @@ function setTile(h, w, pieceType) {
             color = "grey";
     }
 
-    tile.style.backgroundColor = color;
+    if (tile) {
+        tile.style.backgroundColor = color;
+    }
 }
 
 function connectToServer() {
@@ -193,6 +198,7 @@ function handleIncomingMessage(incomingMessage) {
         case "PLAYERID":
             this.currentPlayerId = incomingMessage.playerId;
             console.log("Player id is: " + this.currentPlayerId);
+            initializeBoards();
             break;
         default:
             console.log("unknown message type");
@@ -233,5 +239,5 @@ function openWebSocket() {
     }
 }
 
-initializeBoard();
+//initializeBoards();
 startRecordingInputs();

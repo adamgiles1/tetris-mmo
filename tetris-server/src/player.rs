@@ -13,6 +13,7 @@ pub struct Player {
     pub piece: Piece,
     pub sender: Sender,
     pub inputs: Vec<Direction>,
+    pub game_ended: bool,
 }
 
 impl Player {
@@ -26,6 +27,7 @@ impl Player {
             piece: Piece::new(5, 5, PieceType::L),
             sender,
             inputs: vec![],
+            game_ended: false,
         };
 
         let message = serde_json::to_string(&PlayerId {
@@ -51,6 +53,9 @@ impl Player {
 
     pub fn set_piece(&mut self, piece: Piece) {
         self.piece = piece;
+        if !self.board.coordinates_are_valid(self.piece.get_coordinates()) {
+            self.game_ended = true;
+        }
     }
 
     pub fn reset_inputs(&mut self) {
@@ -74,6 +79,7 @@ impl Player {
                 self.piece.drop(&mut self.board);
                 self.set_piece(Piece::new_random())
             },
+            Direction::DOWN => (),
             Direction::NONE => (),
         };
     }
@@ -142,6 +148,7 @@ pub struct BoardOutput {
     pub playerId: String,
     pub tiles: Vec<Vec<String>>,
     pub piece: PieceOutput,
+    pub gameEnded: bool,
 }
 
 #[derive(Serialize, Deserialize)]
