@@ -7,7 +7,7 @@ let upPressed = false;
 let downPressed = false;
 let spacePressed = false;
 
-function initializeBoards() {
+function initializeBoards(playerIds) {
     let gameWindow = document.getElementById("game-window");
     let board = '<table id="game-board">';
     
@@ -21,8 +21,33 @@ function initializeBoards() {
         board += '</tr>';
     }
 
+
+
     board += '</table>';
     gameWindow.innerHTML = board;
+
+    let leftGamesWindow = document.getElementById("left-game-window");
+    leftGamesWindow.innerHTML = "";
+
+    for (playerId in playerIds) {
+        // Don't generate small side board for main player
+        if (playerId == this.currentPlayerId) {
+            continue;
+        }
+
+        board = `<table class="other" id="game-board-${playerId}">`;
+        for (let h = 19; h >= 0; h--) {
+            board += `<tr id="player-${playerId}-row-${h}">`;
+
+            for (let w = 0; w <= 9; w++) {
+                board += `<td class="small" id="player-${playerId}-tile-${h}-${w}"></td>`;
+            }
+
+            board += '</tr>';
+        }
+        board += '</table>';
+        leftGamesWindow.innerHTML += board;
+    }
 }
 
 function updateAllBoards(boardsMessage) {
@@ -57,8 +82,6 @@ function updateBoard(board) {
 }
 
 function setTile(h, w, pieceType, playerId) {
-    console.log("here it is");
-    console.log(`player-${playerId}-tile-${h}-${w}`);
     let tile = document.getElementById(`player-${playerId}-tile-${h}-${w}`);
     let color;
 
@@ -102,6 +125,7 @@ function connectToServer() {
     //start listening to player key inputs to send to server
     console.log("attempting to connect");
     openWebSocket();
+    document.getElementById("connect-btn").disabled = true;
 }
 
 function enterMatchmaking() {
@@ -195,10 +219,10 @@ function handleIncomingMessage(incomingMessage) {
         case "BOARD":
             updateAllBoards(incomingMessage);
             break;
-        case "PLAYERID":
+        case "GAME_START":
             this.currentPlayerId = incomingMessage.playerId;
             console.log("Player id is: " + this.currentPlayerId);
-            initializeBoards();
+            initializeBoards(incomingMessage.allIds);
             break;
         default:
             console.log("unknown message type");
@@ -236,6 +260,7 @@ function openWebSocket() {
     ws.onclose =function() {
         alert("disconnected");
         this.connected = false;
+        document.getElementById("connect-btn").disabled = false;
     }
 }
 

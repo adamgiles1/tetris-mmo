@@ -1,4 +1,4 @@
-use crate::player::{Player, BoardOutput, AllBoardOutput};
+use crate::player::{Player, BoardOutput, AllBoardOutput, PlayerIds};
 use crate::piece::{Piece, Direction};
 use crate::piece::PieceType;
 use crate::server::WebServer;
@@ -48,11 +48,31 @@ impl Game {
 
     pub fn start(&mut self) {
         println!("starting game");
-        //start calling tick every 60th of a second to update game
-        loop {
 
+        // Give player information so clients can initialize the boards
+        self.send_game_init_message();
+        thread::sleep(Duration::from_millis(5000));
+
+        // start calling tick every 60th of a second to update game
+        loop {
             self.tick();
             thread::sleep(Duration::from_millis(16));
+        }
+    }
+
+    fn send_game_init_message(&self) {
+        let mut all_player_ids= vec![];
+        for player in &self.players {
+            all_player_ids.push(player.username.clone());
+        }
+
+        for player in &self.players {
+            let message = serde_json::to_string(&PlayerIds {
+                msgType: String::from("GAME_START"),
+                playerId: player.username.clone(),
+                allIds: all_player_ids.clone(),
+            }).unwrap();
+            player.send_message(message);
         }
     }
 

@@ -4,13 +4,30 @@ td {
     background-color: black;
 }
 
+.small {
+    width: 10px;
+    height: 10px;
+}
+
 #game-board {
     margin: auto;
 }
 
 #game-window {
     height: 100%;
+    flex-grow: 1;
     border: 5px solid black;
     text-align: center;
     margin: auto;
+    align-items: center;
+}
+
+#left-game-window {
+    width: 20%;
+    float: left;
+}
+
+#right-game-window {
+    width: 20%;
+    float: right;
 }

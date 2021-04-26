@@ -1,0 +1,7 @@
+{
+  "msgType": "GAME_START",
+  "playerId": "1",
+  "allIds": [
+    "2","3","4"
+  ]
+}

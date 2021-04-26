@@ -30,12 +30,6 @@ impl Player {
             game_ended: false,
         };
 
-        let message = serde_json::to_string(&PlayerId {
-            msgType: String::from("PLAYERID"),
-            playerId: id,
-        }).unwrap();
-        player.sender.send(message);
-
         player
     }
 
@@ -158,7 +152,8 @@ pub struct PieceOutput {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct PlayerId {
+pub struct PlayerIds {
     pub msgType: String,
     pub playerId: String,
+    pub allIds: Vec<String>,
 }
