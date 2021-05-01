@@ -6,6 +6,9 @@ let leftPressed = false;
 let upPressed = false;
 let downPressed = false;
 let spacePressed = false;
+let gameOver = false;
+let winner = false;
+let music;
 
 function initializeBoards(playerIds) {
     let gameWindow = document.getElementById("game-window");
@@ -27,7 +30,9 @@ function initializeBoards(playerIds) {
     gameWindow.innerHTML = board;
 
     let leftGamesWindow = document.getElementById("left-game-window");
+    let rightGamesWindow = document.getElementById("right-game-window");
     leftGamesWindow.innerHTML = "";
+    let nextBoardIsLeft = true;
 
     for (playerId in playerIds) {
         // Don't generate small side board for main player
@@ -46,7 +51,13 @@ function initializeBoards(playerIds) {
             board += '</tr>';
         }
         board += '</table>';
-        leftGamesWindow.innerHTML += board;
+        
+        if (nextBoardIsLeft) {
+            leftGamesWindow.innerHTML += board;
+        } else {
+            rightGamesWindow.innerHTML += board;
+        }
+        nextBoardIsLeft = !nextBoardIsLeft;
     }
 }
 
@@ -57,10 +68,21 @@ function updateAllBoards(boardsMessage) {
         let board = boards[i];
         console.log(board);
         updateBoard(board);
+
+        // Check if player has lost
         if (board.playerId === this.currentPlayerId) {
-            if (board.gameEnded) {
+            if (board.gameEnded && !this.gameOver) {
+                this.gameOver = true;
+                loserSound();
                 alert("loser");
             }
+        }
+
+        console.log("here it is: " + !this.winner + !this.gameOver + otherPlayersAllLost(boards));
+        // Check if player has won
+        if (!this.winner && !this.gameOver && otherPlayersAllLost(boards)) {
+            winnerSound();
+            this.winner = true;
         }
     }
 }
@@ -117,6 +139,37 @@ function setTile(h, w, pieceType, playerId) {
     if (tile) {
         tile.style.backgroundColor = color;
     }
+}
+
+function otherPlayersAllLost(boards) {
+    for (board in boards) {
+        if (!board.gameEnded && board.playerId != this.currentPlayerId) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function startMusic() {
+    this.music = new Audio("https://vgmsite.com/soundtracks/tetris-gameboy-rip/mpkrawiu/tetris-gameboy-02.mp3");
+    this.music.loop = true;
+    this.music.volume = .1;
+    this.music.play();
+}
+
+function loserSound() {
+    this.music.pause();
+    this.music.stop;
+    let sound = new Audio("https://vgmsite.com/soundtracks/bs-zelda-1996-snes/xfufsxrmcq/18%20Defeated.mp3");
+    sound.play();
+}
+
+function winnerSound() {
+    this.music.pause();
+    this.music.stop;
+    alert("winner");
+    let sound = new Audio("https://vgmsite.com/soundtracks/bs-zelda-1996-snes/uuhmkimpun/12%20Triforce%20of%20Power.mp3");
+    sound.play();
 }
 
 function connectToServer() {
@@ -223,6 +276,9 @@ function handleIncomingMessage(incomingMessage) {
             this.currentPlayerId = incomingMessage.playerId;
             console.log("Player id is: " + this.currentPlayerId);
             initializeBoards(incomingMessage.allIds);
+            startMusic();
+            this.gameOver = false;
+            this.winner = false;
             break;
         default:
             console.log("unknown message type");
@@ -264,5 +320,4 @@ function openWebSocket() {
     }
 }
 
-//initializeBoards();
 startRecordingInputs();

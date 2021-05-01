@@ -115,6 +115,42 @@ const T_OFFSET_LIST: [[Offset; 4]; 4] = [
     [c(0,0),c(1,0),c(-1,0),c(0,-1)],
     [c(0,0),c(-1,0),c(0,1),c(0,-1)]];
 
+const S_OFFSET_LIST: [[Offset; 4]; 4] = [
+    [c(0,0),c(0,1),c(1,1),c(-1,0)],
+    [c(0,0),c(0,1),c(1,0),c(1,-1)],
+    [c(0,0),c(1,0),c(-1,-1),c(0,-1)],
+    [c(0,0),c(-1,0),c(-1,1),c(0,-1)]];
+
+const Z_OFFSET_LIST: [[Offset; 4]; 4] = [
+    [c(0,0),c(1,0),c(0,1),c(-1,1)],
+    [c(0,0),c(1,0),c(1,1),c(0,-1)],
+    [c(0,0),c(-1,0),c(0,-1),c(1,-1)],
+    [c(0,0),c(0,1),c(-1,0),c(-1,-1)],];
+
+const O_OFFSET_LIST: [[Offset; 4]; 4] = [
+    [c(0,0),c(0,1),c(1,0),c(1,1)],
+    [c(0,0),c(0,1),c(1,0),c(1,1)],
+    [c(0,0),c(0,1),c(1,0),c(1,1)],
+    [c(0,0),c(0,1),c(1,0),c(1,1)]];
+
+const I_OFFSET_LIST: [[Offset; 4]; 4] = [
+    [c(-1,1),c(0,1),c(1,1),c(2,1)],
+    [c(1,-2),c(1,-1),c(1,0),c(1,1)],
+    [c(-1,-1),c(0,-1),c(1,-1),c(2,-1)],
+    [c(0,0),c(0,-1),c(0,1),c(0,2)]];
+
+const J_OFFSET_LIST: [[Offset; 4]; 4] = [
+    [c(0,0),c(1,0),c(-1,0),c(-1,1)],
+    [c(0,0),c(0,1),c(1,1),c(0,-1)],
+    [c(-1,0),c(0,0),c(1,0),c(1,-1)],
+    [c(0,0),c(0,1),c(0,-1),c(-1,-1)]];
+
+const L_OFFSET_LIST: [[Offset; 4]; 4] = [
+    [c(0,0),c(-1,0),c(1,0),c(1,1)],
+    [c(0,0),c(0,1),c(0,-1),c(1,-1)],
+    [c(0,0),c(-1,0),c(-1,-1),c(1,0)],
+    [c(0,0),c(-1,1),c(0,1),c(0,-1)]];
+
 // Offsets are stored at bottom of file in a horribly stupid way
 #[derive(Clone, Copy)]
 pub enum PieceType {
@@ -144,8 +180,16 @@ impl PieceType {
     }
 
     pub fn get_offsets(&self, index: usize) -> [Offset; 4] {
-
-        return T_OFFSET_LIST[index].clone()
+        match self {
+            PieceType::T => T_OFFSET_LIST[index].clone(),
+            PieceType::I => I_OFFSET_LIST[index].clone(),
+            PieceType::O => O_OFFSET_LIST[index].clone(),
+            PieceType::S => S_OFFSET_LIST[index].clone(),
+            PieceType::Z => Z_OFFSET_LIST[index].clone(),
+            PieceType::J => J_OFFSET_LIST[index].clone(),
+            PieceType::L => L_OFFSET_LIST[index].clone(),
+            _ => T_OFFSET_LIST[index].clone(),
+        }
     }
 
     pub fn random() -> PieceType {

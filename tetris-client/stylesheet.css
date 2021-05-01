@@ -9,25 +9,36 @@ td {
     height: 10px;
 }
 
+.other {
+    height: 30%;
+    table-layout: fixed;
+    width: 49%;
+    padding: 2px;
+    float: left;
+}
+
 #game-board {
     margin: auto;
 }
 
 #game-window {
-    height: 100%;
-    flex-grow: 1;
-    border: 5px solid black;
+    height: 90%;
+    width: 50%;
+    /* border: 5px solid black; */
+    float: left;
     text-align: center;
     margin: auto;
     align-items: center;
 }
 
 #left-game-window {
+    height: 90%;
     width: 20%;
     float: left;
 }
 
 #right-game-window {
+    height: 90%;
     width: 20%;
-    float: right;
+    float: left;
 }

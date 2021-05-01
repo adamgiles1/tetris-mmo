@@ -20,11 +20,11 @@ use std::sync::Arc;
 
 fn main() {
     println!("Starting server...");
-    let player_count = 5;
+    let player_count = 3;
 
     let mut connections = vec![];
 
-    listen("127.0.0.1:6868", |out| {
+    listen("192.168.0.248:6868", |out| {
         let cloned = out.clone();
         let connection = Player::new(out);
         connections.push(cloned);

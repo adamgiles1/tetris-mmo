@@ -120,7 +120,7 @@ impl Game {
         }
 
         // every 30 seconds increase the speed
-        if self.turns % (30*60) == 0 && self.speed > 2 {
+        if self.turns % (45*60) == 0 && self.speed > 2 {
             self.speed -= 4
         }
 
