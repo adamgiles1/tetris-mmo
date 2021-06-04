@@ -17,14 +17,19 @@ use crate::connection::Connection;
 use std::{io, thread};
 use crate::server::WebServer;
 use std::sync::Arc;
+use std::collections::HashMap;
 
 fn main() {
     println!("Starting server...");
-    let player_count = 3;
+
+    let properties = dotproperties::parse_from_file("../config.properties").unwrap();
+    let mapped_properties: HashMap<_,_> = properties.into_iter().collect();
+    let player_count = mapped_properties.get("playerCount").unwrap().parse().unwrap();
+    println!("using players per game of {}", player_count);
 
     let mut connections = vec![];
 
-    listen("192.168.0.248:6868", |out| {
+    listen("127.0.0.1:6868", |out| {
         let cloned = out.clone();
         let connection = Player::new(out);
         connections.push(cloned);

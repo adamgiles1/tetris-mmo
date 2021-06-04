@@ -19,6 +19,7 @@ pub struct Game {
     turns: i32,
     speed: i32,
     till_next_fall: i32,
+    swap_boards: bool,
 }
 
 impl Game {
@@ -28,6 +29,7 @@ impl Game {
             turns: 0,
             speed: 30,
             till_next_fall: 30,
+            swap_boards: true
         }
     }
 
@@ -51,7 +53,7 @@ impl Game {
 
         // Give player information so clients can initialize the boards
         self.send_game_init_message();
-        thread::sleep(Duration::from_millis(5000));
+        thread::sleep(Duration::from_millis(3000));
 
         // start calling tick every 60th of a second to update game
         loop {
@@ -119,12 +121,48 @@ impl Game {
             player.send_message(serde_json::to_string(&boardsOutput).unwrap());
         }
 
-        // every 30 seconds increase the speed
-        if self.turns % (45*60) == 0 && self.speed > 2 {
-            self.speed -= 4
+        // every 35 seconds increase the speed
+        if self.turns % (30*60) == 0 && self.speed > 2 {
+            self.speed -= 4;
+
+            if self.swap_boards {
+                self.cycle_boards();
+            }
+        }
+
+        // every 10 seconds swap boards
+        if self.turns % (10*60) == 0 && self.speed > 2 {
+            if self.swap_boards {
+                self.cycle_boards();
+            }
         }
 
         self.turns += 1;
         self.till_next_fall -= 1;
+    }
+
+    fn cycle_boards(&mut self) {
+
+        let mut boards = vec![];
+        let mut pieces = vec![];
+
+        for mut player in &mut self.players {
+            if !player.game_ended {
+                boards.push(player.get_board().clone());
+                pieces.push(player.get_piece().clone());
+            }
+        }
+
+        let first_item = boards.remove(0);
+        boards.push(first_item);
+        let first_item = pieces.remove(0);
+        pieces.push(first_item);
+
+        for mut player in &mut self.players {
+            if !player.game_ended {
+                player.set_board(boards.remove(0));
+                player.set_piece(pieces.remove(0));
+            }
+        }
     }
 }

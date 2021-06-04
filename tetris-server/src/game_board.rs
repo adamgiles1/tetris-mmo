@@ -5,6 +5,7 @@ use crate::player::BoardOutput;
 use std::collections::HashSet;
 use std::ops::Range;
 
+#[derive(Clone, Copy)]
 pub struct GameBoard {
     board: [[Block; 40]; 10],
 }
