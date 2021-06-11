@@ -9,6 +9,7 @@ use std::thread;
 use std::collections::HashMap;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
+use rand::Rng;
 
 lazy_static! {
     static ref inputs: Mutex<HashMap<String, Vec<Direction>>> = Mutex::new(HashMap::new());
@@ -20,6 +21,7 @@ pub struct Game {
     speed: i32,
     till_next_fall: i32,
     swap_boards: bool,
+    till_next_swap: i32,
 }
 
 impl Game {
@@ -30,6 +32,7 @@ impl Game {
             speed: 30,
             till_next_fall: 30,
             swap_boards,
+            till_next_swap: 10,
         }
     }
 
@@ -124,13 +127,14 @@ impl Game {
         // every 35 seconds increase the speed
         if self.turns % (30*60) == 0 && self.speed > 2 {
             self.speed -= 4;
-
-            if self.swap_boards {
-                self.cycle_boards();
-            }
         }
 
-        // every 10 seconds swap boards
+        // every 1-25 seconds swap boards
+        if self.swap_boards && self.till_next_swap <= 0 {
+            self.cycle_boards();
+            self.till_next_swap = rand::thread_rng().gen_range(1..26) * 60;
+        }
+
         if self.turns % (10*60) == 0 && self.speed > 2 {
             if self.swap_boards {
                 self.cycle_boards();
@@ -139,6 +143,7 @@ impl Game {
 
         self.turns += 1;
         self.till_next_fall -= 1;
+        self.till_next_swap -= 1;
     }
 
     fn cycle_boards(&mut self) {

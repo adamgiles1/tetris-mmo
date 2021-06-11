@@ -18,6 +18,7 @@ use std::{io, thread};
 use crate::server::WebServer;
 use std::sync::Arc;
 use std::collections::HashMap;
+use std::mem::swap;
 
 fn main() {
     println!("Starting server...");
@@ -36,8 +37,9 @@ fn main() {
         connections.push(cloned);
         if connections.len() >= player_count {
             let cloned_connections = connections.clone();
-            thread::spawn(|| {
-                let mut game = Game::new(swap_boards);
+            let swap = swap_boards;
+            thread::spawn(move || {
+                let mut game = Game::new(swap);
 
                 for connection in cloned_connections {
                     game.add_player(Player::new(connection));
