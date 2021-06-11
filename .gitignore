@@ -3,3 +3,5 @@ tetris-server/target
 untitled
 
 tetris-server/.idea
+
+*/node_modules

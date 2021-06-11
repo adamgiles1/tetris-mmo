@@ -1,0 +1,14 @@
+{
+  "name": "tetris-client",
+  "version": "1.0.0",
+  "description": "a client for tetris",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^13.1.2"
+  }
+}

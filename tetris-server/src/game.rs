@@ -124,21 +124,15 @@ impl Game {
             player.send_message(serde_json::to_string(&boardsOutput).unwrap());
         }
 
-        // every 35 seconds increase the speed
-        if self.turns % (30*60) == 0 && self.speed > 2 {
+        // every 20 seconds increase the speed
+        if self.turns % (20*60) == 0 && self.speed > 2 {
             self.speed -= 4;
         }
 
-        // every 1-25 seconds swap boards
+        // every 1-20 seconds swap boards
         if self.swap_boards && self.till_next_swap <= 0 {
             self.cycle_boards();
-            self.till_next_swap = rand::thread_rng().gen_range(1..26) * 60;
-        }
-
-        if self.turns % (10*60) == 0 && self.speed > 2 {
-            if self.swap_boards {
-                self.cycle_boards();
-            }
+            self.till_next_swap = rand::thread_rng().gen_range(1..21) * 60;
         }
 
         self.turns += 1;
