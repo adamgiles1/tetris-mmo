@@ -25,6 +25,7 @@ fn main() {
     let properties = dotproperties::parse_from_file("../config.properties").unwrap();
     let mapped_properties: HashMap<_,_> = properties.into_iter().collect();
     let player_count = mapped_properties.get("playerCount").unwrap().parse().unwrap();
+    let swap_boards = mapped_properties.get("swapBoards").unwrap().parse().unwrap();
     println!("using players per game of {}", player_count);
 
     let mut connections = vec![];
@@ -36,7 +37,7 @@ fn main() {
         if connections.len() >= player_count {
             let cloned_connections = connections.clone();
             thread::spawn(|| {
-                let mut game = Game::new();
+                let mut game = Game::new(swap_boards);
 
                 for connection in cloned_connections {
                     game.add_player(Player::new(connection));

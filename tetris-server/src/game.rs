@@ -23,13 +23,13 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new() -> Game {
+    pub fn new(swap_boards: bool) -> Game {
         Game {
             players: vec![],
             turns: 0,
             speed: 30,
             till_next_fall: 30,
-            swap_boards: true
+            swap_boards,
         }
     }
 
