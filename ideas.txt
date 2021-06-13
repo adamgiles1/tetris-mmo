@@ -1,0 +1,14 @@
+2d mario game
+
+small self contained levels
+
+have transformice style level progression
+
+implement proximity voice chat
+
+players do not interact with each other directly 
+(to start out with)
+(characters impact level in ways that implact players?)
+
+if someone hacks then they will be allowed
+(anti cheat will be funde via fundraiser)
